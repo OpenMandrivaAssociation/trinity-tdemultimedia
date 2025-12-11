@@ -1,6 +1,12 @@
-#
-# Please submit bugfixes or comments via http://www.trinitydesktop.org/
-#
+%bcond clang 1
+%bcond taglib 1
+%bcond akode 1
+%bcond libmad 1
+%bcond xine 1
+%bcond lame 1
+%bcond mpeg 1
+%bcond musicbrainz 0
+%bcond audiofile 1
 
 # BUILD WARNING:
 #  Remove qt-devel and qt3-devel and any kde*-devel on your system !
@@ -11,6 +17,8 @@
 %if "%{?tde_version}" == ""
 %define tde_version 14.1.5
 %endif
+%define pkg_rel 5
+
 %define tde_pkg tdemultimedia
 %define tde_prefix /opt/trinity
 %define tde_bindir %{tde_prefix}/bin
@@ -24,31 +32,24 @@
 %define tde_tdeincludedir %{tde_includedir}/tde
 %define tde_tdelibdir %{tde_libdir}/trinity
 
-%if 0%{?mdkversion}
 %undefine __brp_remove_la_files
 %define dont_remove_libtool_files 1
 %define _disable_rebuild_configure 1
-%endif
 
 # fixes error: Empty %files file …/debugsourcefiles.list
 %define _debugsource_template %{nil}
 
 %define tarball_name %{tde_pkg}-trinity
-%global toolchain %(readlink /usr/bin/cc)
 
 
 Name:		trinity-%{tde_pkg}
 Summary:	Multimedia applications for the Trinity Desktop Environment
 Version:	%{tde_version}
-Release:	%{?!preversion:4}%{?preversion:0_%{preversion}}%{?dist}
+Release:	%{?!preversion:%{pkg_rel}}%{?preversion:0_%{preversion}}%{?dist}
 Group:		Productivity/Multimedia/Sound/Utilities
 URL:		http://www.trinitydesktop.org/
 
-%if 0%{?suse_version}
-License:	GPL-2.0+
-%else
 License:	GPLv2+
-%endif
 
 #Vendor:		Trinity Project
 #Packager:	Francois Andriot <francois.andriot@free.fr>
@@ -58,7 +59,39 @@ Prefix:		%{tde_prefix}
 Source0:	https://mirror.ppa.trinitydesktop.org/trinity/releases/R%{tde_version}/main/core/%{tarball_name}-%{version}%{?preversion:~%{preversion}}.tar.xz
 Source1:	%{name}-rpmlintrc
 
-BuildRequires:  cmake make
+BuildSystem:    cmake
+BuildOption:    -DCMAKE_BUILD_TYPE="RelWithDebInfo"
+BuildOption:    -DCMAKE_SKIP_RPATH=OFF
+BuildOption:    -DCMAKE_SKIP_INSTALL_RPATH=OFF
+BuildOption:    -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
+BuildOption:    -DCMAKE_INSTALL_RPATH="%{tde_libdir}"
+BuildOption:    -DCMAKE_NO_BUILTIN_CHRPATH=ON
+BuildOption:    -DWITH_GCC_VISIBILITY=ON
+BuildOption:    -DCMAKE_INSTALL_PREFIX="%{tde_prefix}"
+BuildOption:    -DBIN_INSTALL_DIR="%{tde_bindir}"
+BuildOption:    -DCONFIG_INSTALL_DIR="%{tde_confdir}"
+BuildOption:    -DDOC_INSTALL_DIR="%{tde_docdir}"
+BuildOption:    -DINCLUDE_INSTALL_DIR="%{tde_tdeincludedir}"
+BuildOption:    -DLIB_INSTALL_DIR="%{tde_libdir}"
+BuildOption:    -DPKGCONFIG_INSTALL_DIR="%{tde_libdir}/pkgconfig"
+BuildOption:    -DSHARE_INSTALL_PREFIX="%{tde_datadir}"
+BuildOption:    -DWITH_ALL_OPTIONS=ON -DWITH_ALSA=ON 
+BuildOption:    -DWITH_CDPARANOIA=ON
+BuildOption:    -DWITH_FLAC=ON
+BuildOption:    -DWITH_GSTREAMER=ON
+BuildOption:    -DWITH_KSCD_CDDA=ON
+BuildOption:    -DWITH_THEORA=ON -DWITH_VORBIS=ON -DBUILD_ALL=ON
+BuildOption:    -DWITH_ARTS_AKODE=ON
+%{?with_audiofile:BuildOption:    -DWITH_ARTS_AUDIOFILE=ON}
+%{?!with_audiofile:BuildOption:    -DWITH_ARTS_AUDIOFILE=OFF}
+%{?with_mpeg:BuildOption:    -DWITH_ARTS_MPEGLIB=ON}
+%{?with_xine:BuildOption:    -DWITH_ARTS_XINE=ON}
+%{?with_lame:BuildOption:    -DWITH_LAME=ON}
+%{!?with_lame:BuildOption:    -DWITH_LAME=OFF}
+%{?with_musicbrainz:BuildOption:    -DWITH_MUSICBRAINZ=ON}
+%{!?with_musicbrainz:BuildOption:    -DWITH_MUSICBRAINZ=OFF}
+%{?with_taglib:BuildOption:    -DWITH_TAGLIB=ON}
+%{!?with_taglib:BuildOption:    -DWITH_TAGLIB=OFF}
 
 Obsoletes:	trinity-kdemultimedia < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:	trinity-kdemultimedia = %{?epoch:%{epoch}:}%{version}-%{release}
@@ -74,33 +107,20 @@ BuildRequires:	trinity-tdelibs-devel >= %{tde_version}
 BuildRequires:	trinity-tdebase-devel >= %{tde_version}
 
 BuildRequires:	trinity-tde-cmake >= %{tde_version}
-%if "%{?toolchain}" != "clang"
-BuildRequires:	gcc-c++
-%endif
+
+%{!?with_clang:BuildRequires:	gcc-c++}
+
 BuildRequires:	fdupes
 BuildRequires:	desktop-file-utils
 
-# SUSE desktop files utility
-%if 0%{?suse_version}
-BuildRequires:	update-desktop-files
-%endif
-
-%if 0%{?opensuse_bs} && 0%{?suse_version}
-# for xdg-menu script
-BuildRequires:	brp-check-trinity
-%endif
-
 # TAGLIB support
-%define with_taglib 1
-BuildRequires: pkgconfig(taglib)
+%{?with_taglib:BuildRequires: pkgconfig(taglib)}
 
 # AKODE support
-%define with_akode 1
-BuildRequires: trinity-akode-devel
+%{?with_akode:BuildRequires: trinity-akode-devel}
 
 # MAD support
-%ifarch %{ix86} x86_64
-%define with_libmad 1
+%ifarch %{ix86} %{x86_64}
 %{?with_libmad:BuildRequires: libakode_mpeg_decoder}
 %endif
 
@@ -113,9 +133,9 @@ BuildRequires:	pkgconfig(zlib)
 #BuildRequires: libmusicbrainz-devel libtunepimp-devel
 
 # Audio libraries
-BuildRequires:	pkgconfig(audiofile)
+%{?with_audiofile:BuildRequires:	pkgconfig(audiofile)}
+
 BuildRequires:	cdparanoia
-#BuildRequires:	libmpg123-devel
 
 # VORBIS support
 BuildRequires:  pkgconfig(vorbis)
@@ -128,16 +148,7 @@ BuildRequires:  pkgconfig(theora)
 BuildRequires:  pkgconfig(alsa)
 
 # CDDA support
-%if 0%{?mgaversion} || 0%{?mdkversion}
-%if 0%{?mdkver}
 BuildRequires:	%{_lib}cdda-devel
-%else
-BuildRequires:	libcdda-devel
-%endif
-%endif
-%if 0%{?rhel} || 0%{?fedora} || 0%{?suse_version}
-BuildRequires:	cdparanoia-devel
-%endif
 
 # CDIO support
 BuildRequires:	pkgconfig(libcdio)
@@ -155,30 +166,10 @@ BuildRequires:	pkgconfig(xxf86dga)
 BuildRequires:	pkgconfig(xxf86vm)
 
 # XINE support
-%if 0%{?fedora} || 0%{?mdkversion} || 0%{?mgaversion} || 0%{?pclinuxos} || 0%{?rhel} || 0%{?suse_version}
-%define with_xine 1
-BuildRequires:  pkgconfig(libxine)
-%endif
+%{?with_xine:BuildRequires:  pkgconfig(libxine)}
 
 # LAME support
-%if 0%{?opensuse_bs} == 0
-%define with_lame 1
-
-%if 0%{?mgaversion} || 0%{?mdkversion}
-%if 0%{?pclinuxos}
-BuildRequires:		liblame-devel
-%else
-%if 0%{?mgaversion} >= 6
-BuildRequires:		%{_lib}mp3lame-devel
-%else
-BuildRequires:		%{_lib}lame-devel
-%endif
-%endif
-%endif
-%if 0%{?suse_version}
-BuildRequires:		libmp3lame-devel
-%endif
-%endif
+%{?with_lame:BuildRequires:		pkgconfig(lame)}
 
 # IDN support
 BuildRequires:	pkgconfig(libidn)
@@ -194,10 +185,6 @@ BuildRequires:  pkgconfig(libattr)
 
 BuildRequires:  pkgconfig(xrender)
 
-%if 0%{?fedora} || 0%{?rhel}
-BuildRequires:		lame-devel
-%endif
-
 
 Requires: trinity-artsbuilder = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires: trinity-juk = %{?epoch:%{epoch}:}%{version}-%{release}
@@ -211,7 +198,7 @@ Requires: trinity-kmix = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires: trinity-krec = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires: trinity-kscd = %{?epoch:%{epoch}:}%{version}-%{release}
 %{?with_akode:Requires: trinity-libarts-akode = %{?epoch:%{epoch}:}%{version}-%{release}}
-Requires: trinity-libarts-audiofile = %{?epoch:%{epoch}:}%{version}-%{release}
+%{?with_audiofile:Requires: trinity-libarts-audiofile = %{?epoch:%{epoch}:}%{version}-%{release}}
 %{?with_mpeg:Requires: trinity-libarts-mpeglib = %{?epoch:%{epoch}:}%{version}-%{release}}
 %{?with_xine:Requires: trinity-libarts-xine = %{?epoch:%{epoch}:}%{version}-%{release}}
 Requires: trinity-libkcddb = %{?epoch:%{epoch}:}%{version}-%{release}
@@ -442,7 +429,7 @@ Some of JuK's features include:
 Summary:	Light, embedded media player for Trinity
 Group:		System/GUI/Other
 
-%if 0%{?with_xine}
+%if %{with xine}
 Requires:	trinity-libarts-xine = %{?epoch:%{epoch}:}%{version}-%{release}
 %endif
 
@@ -674,7 +661,7 @@ This is a sound recording utility for Trinity.
 %{tde_tdelibdir}/kcm_krec_files.so
 %{tde_tdelibdir}/krec.la
 %{tde_tdelibdir}/krec.so
-%if 0%{?with_lame}
+%if %{with lame}
 %{tde_tdelibdir}/libkrecexport_mp3.la
 %{tde_tdelibdir}/libkrecexport_mp3.so
 %{tde_datadir}/services/krec_exportmp3.desktop
@@ -719,7 +706,7 @@ This is Trinity's audio CD player.
 
 ##########
 
-%if 0%{?with_akode}
+%if %{with akode}
 %package -n trinity-libarts-akode
 Summary:	Akode plugin for aRts
 Group:		Productivity/Multimedia/Other
@@ -732,17 +719,17 @@ This package contains akode plugins for aRts.
 %{tde_libdir}/libarts_akode.so.*
 %{tde_libdir}/libarts_akode.la
 %{tde_libdir}/mcop/akodearts.mcoptype
-%{tde_libdir}/mcop/akode*.mcopclass
-# %{tde_libdir}/mcop/akodeMPCPlayObject.mcopclass
-# %{tde_libdir}/mcop/akodePlayObject.mcopclass
-# %{tde_libdir}/mcop/akodeSpeexStreamPlayObject.mcopclass
-# %{tde_libdir}/mcop/akodeVorbisStreamPlayObject.mcopclass
-# %{tde_libdir}/mcop/akodeXiphPlayObject.mcopclass
+%{tde_libdir}/mcop/akodearts.mcopclass
+%{tde_libdir}/mcop/akodeMPCPlayObject.mcopclass
+%{tde_libdir}/mcop/akodePlayObject.mcopclass
+%{tde_libdir}/mcop/akodeSpeexStreamPlayObject.mcopclass
+%{tde_libdir}/mcop/akodeVorbisStreamPlayObject.mcopclass
+%{tde_libdir}/mcop/akodeXiphPlayObject.mcopclass
 
-# # Requires MAD support
-# %if 0%{?with_libmad}
-# %{tde_libdir}/mcop/akodeMPEGPlayObject.mcopclass
-# %endif
+# Requires MAD support
+%if %{with libmad}
+%{tde_libdir}/mcop/akodeMPEGPlayObject.mcopclass
+%endif
 
 %endif
 
@@ -765,7 +752,7 @@ This package contains audiofile plugins for aRts.
 
 ##########
 
-%if 0%{?with_mpeg}
+%if %{with mpeg}
 
 %package -n trinity-libarts-mpeglib
 Summary:	Mpeglib plugin for aRts, supporting mp3 and mpeg audio/video
@@ -795,7 +782,7 @@ This is the arts (TDE Sound daemon) plugin.
 
 ##########
 
-%if 0%{?with_xine}
+%if %{with xine}
 %package -n trinity-libarts-xine
 Summary:	ARTS plugin enabling xine support
 Group:		Productivity/Multimedia/Other
@@ -843,7 +830,7 @@ databases, for TDE applications.
 
 ##########
 
-%if 0%{?with_mpeg}
+%if %{with mpeg}
 
 %package -n trinity-mpeglib
 Summary:	MP3 and MPEG-1 audio and video library
@@ -879,10 +866,8 @@ Group:		Productivity/Multimedia/Video/Players
 Requires:	trinity-tdebase-bin >= %{tde_version}
 
 # 20120802: Hack to avoid dependency issue on MGA2 and MDV2011
-%if 0%{?mgaversion} || 0%{?mdkversion}
 Provides:	devel(libnoatunarts)
 Provides:	devel(libnoatunarts(64bit))
-%endif
 
 %description -n trinity-noatun
 Noatun is an aRts-based audio and video player for Trinity. It supports all
@@ -978,16 +963,16 @@ noatun plugins.
 %files devel
 %defattr(-,root,root,-)
 %{tde_includedir}/*
-%if 0%{?with_akode}
+%if %{with akode}
 %{tde_libdir}/libarts_akode.so
 %endif
 %{tde_libdir}/libarts_audiofile.so
-%if 0%{?with_mpeg}
+%if %{with mpeg}
 %{tde_libdir}/libarts_mpeglib.so
 %{tde_libdir}/libarts_mpeglib-0.3.0.so
 %{tde_libdir}/libarts_splay.so
 %endif
-%if 0%{?with_xine}
+%if %{with xine}
 %{tde_libdir}/libarts_xine.so
 %endif
 %{tde_libdir}/libartsbuilder.so
@@ -1013,7 +998,7 @@ noatun plugins.
 %{tde_libdir}/libtdeinit_noatun.la
 %{tde_libdir}/libtdemidlib.la
 %{tde_libdir}/libtdemidlib.so
-%if 0%{?with_mpeg}
+%if %{with mpeg}
 %{tde_libdir}/libmpeg.la
 %{tde_libdir}/libmpeg.so
 %endif
@@ -1023,83 +1008,26 @@ noatun plugins.
 %{tde_libdir}/libnoatuncontrols.so
 %{tde_libdir}/libnoatuntags.la
 %{tde_libdir}/libnoatuntags.so
-%if 0%{?with_mpeg}
+%if %{with mpeg}
 %{tde_libdir}/libyafcore.la
 %{tde_libdir}/libyafxplayer.la
 %endif
 
-##########
-
-%if 0%{?suse_version} && 0%{?opensuse_bs} == 0
-%debug_package
-%endif
-
-##########
-
-%prep
-%autosetup -n %{tarball_name}-%{version}%{?preversion:~%{preversion}}
-
-# Update icons for some control center modules
+%prep -a
 %__sed -i "tdeioslave/audiocd/kcmaudiocd/audiocd.desktop" -e "s|^Icon=.*|Icon=kcmaudio|"
 
 
-%build
+%conf -p
 unset QTDIR QTINC QTLIB
 export PATH="%{tde_bindir}:${PATH}"
 export PKG_CONFIG_PATH="%{tde_libdir}/pkgconfig:${PKG_CONFIG_PATH}"
 
-if ! rpm -E %%cmake|grep -e 'cd build\|cd ${CMAKE_BUILD_DIR:-build}'; then
-  %__mkdir_p build
-  cd build
-fi
-
-%cmake \
-  -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
-  -DCMAKE_C_FLAGS="${RPM_OPT_FLAGS}" \
-  -DCMAKE_CXX_FLAGS="${RPM_OPT_FLAGS}" \
-  -DCMAKE_SKIP_RPATH=OFF \
-  -DCMAKE_SKIP_INSTALL_RPATH=OFF \
-  -DCMAKE_INSTALL_RPATH="%{tde_libdir}" \
-  -DCMAKE_NO_BUILTIN_CHRPATH=ON \
-  -DCMAKE_VERBOSE_MAKEFILE=ON \
-  -DWITH_GCC_VISIBILITY=ON \
-  \
-  -DCMAKE_INSTALL_PREFIX="%{tde_prefix}" \
-  -DBIN_INSTALL_DIR="%{tde_bindir}" \
-  -DCONFIG_INSTALL_DIR="%{tde_confdir}" \
-  -DDOC_INSTALL_DIR="%{tde_docdir}" \
-  -DINCLUDE_INSTALL_DIR="%{tde_tdeincludedir}" \
-  -DLIB_INSTALL_DIR="%{tde_libdir}" \
-  -DPKGCONFIG_INSTALL_DIR="%{tde_libdir}/pkgconfig" \
-  -DSHARE_INSTALL_PREFIX="%{tde_datadir}" \
-  \
-  -DWITH_ALL_OPTIONS=ON \
-  -DWITH_ALSA=ON \
-  -DWITH_ARTS_AKODE=ON \
-  -DWITH_ARTS_AUDIOFILE=ON \
-  -DWITH_ARTS_MPEGLIB=ON \
-  -DWITH_ARTS_XINE=ON \
-  -DWITH_CDPARANOIA=ON \
-  -DWITH_FLAC=ON \
-  -DWITH_GSTREAMER=ON \
-  -DWITH_KSCD_CDDA=ON \
-  -DWITH_LAME=%{?with_lame:ON}%{!?with_lame:OFF} \
-  -DWITH_MUSICBRAINZ=%{?with_musicbrainz:ON}%{!?with_musicbrainz:OFF} \
-  -DWITH_TAGLIB=%{?with_taglib:ON}%{!?with_taglib:OFF} \
-  -DWITH_THEORA=ON \
-  -DWITH_VORBIS=ON \
-  -DBUILD_ALL=ON \
-  ..
-
-%__make %{?_smp_mflags} || %__make
-
-
-%install
+%install -p
 export PATH="%{tde_bindir}:${PATH}"
-%__make install DESTDIR="%{?buildroot}" -C build
 
+%install -a
 # Disable MPEG support entirely
-%if 0%{?with_mpeg} == 0
+%if %{without mpeg}
 %__rm %{?buildroot}%{tde_bindir}/mpeglibartsplay
 %__rm %{?buildroot}%{tde_bindir}/yaf-*
 %__rm %{?buildroot}%{tde_libdir}/libarts_mpeglib*
@@ -1112,21 +1040,6 @@ export PATH="%{tde_bindir}:${PATH}"
 %__rm %{?buildroot}%{tde_libdir}/mcop/OGGPlayObject.mcopclass
 %__rm %{?buildroot}%{tde_libdir}/mcop/SplayPlayObject.mcopclass
 %__rm %{?buildroot}%{tde_libdir}/mcop/WAVPlayObject.mcopclass
-%endif
-
-# Updates applications categories for openSUSE
-%if 0%{?suse_version}
-%suse_update_desktop_file krec           AudioVideo Recorder
-%suse_update_desktop_file tdemid         AudioVideo Midi
-%suse_update_desktop_file artsbuilder    AudioVideo AudioVideoEditing
-%suse_update_desktop_file artscontrol    AudioVideo AudioVideoEditing
-%suse_update_desktop_file kmix           AudioVideo Mixer
-%suse_update_desktop_file kaboodle       AudioVideo Player
-%suse_update_desktop_file kaudiocreator  AudioVideo CD
-%suse_update_desktop_file kscd           AudioVideo Player CD
-%suse_update_desktop_file noatun         AudioVideo Player Video
-%suse_update_desktop_file juk            AudioVideo Player Jukebox
-%suse_update_desktop_file audiocd
 %endif
 
 # Links duplicate files
