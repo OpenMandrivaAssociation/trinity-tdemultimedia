@@ -88,7 +88,7 @@ BuildRequires:	desktop-file-utils
 
 # MAD support
 %ifarch %{ix86} %{x86_64}
-%{?with_libmad:BuildRequires: libakode_mpeg_decoder}
+%{?with_libmad:BuildRequires: %{_lib}akode_mpeg_decoder}
 %endif
 
 # ZLIB support
