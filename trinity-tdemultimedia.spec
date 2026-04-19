@@ -13,12 +13,6 @@
 #  Having KDE libraries may cause FTBFS here !
 
 # TDE variables
-%define tde_epoch 2
-%if "%{?tde_version}" == ""
-%define tde_version 14.1.5
-%endif
-%define pkg_rel 5
-
 %define tde_pkg tdemultimedia
 %define tde_prefix /opt/trinity
 
@@ -34,15 +28,15 @@
 
 Name:		trinity-%{tde_pkg}
 Summary:	Multimedia applications for the Trinity Desktop Environment
-Version:	%{tde_version}
-Release:	%{?!preversion:%{pkg_rel}}%{?preversion:0_%{preversion}}%{?dist}
+Version:	14.1.5
+Release:	6
 Group:		Productivity/Multimedia/Sound/Utilities
 URL:		http://www.trinitydesktop.org/
 
 License:	GPLv2+
 
 
-Source0:	https://mirror.ppa.trinitydesktop.org/trinity/releases/R%{tde_version}/main/core/%{tarball_name}-%{version}%{?preversion:~%{preversion}}.tar.xz
+Source0:	https://mirror.ppa.trinitydesktop.org/trinity/releases/R%{version}/main/core/%{tarball_name}-%{version}.tar.xz
 Source1:	%{name}-rpmlintrc
 
 BuildSystem:    cmake
@@ -66,20 +60,20 @@ BuildOption:    -DWITH_LAME=%{!?with_lame:OFF}%{?with_lame:ON}
 BuildOption:    -DWITH_MUSICBRAINZ=%{!?with_musicbrainz:OFF}%{?with_musicbrainz:ON}
 BuildOption:    -DWITH_TAGLIB=%{!?with_taglib:OFF}%{?with_taglib:ON}
 
-Obsoletes:	trinity-kdemultimedia < %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:	trinity-kdemultimedia = %{?epoch:%{epoch}:}%{version}-%{release}
-Obsoletes:	trinity-kdemultimedia-libs < %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:	trinity-kdemultimedia-libs = %{?epoch:%{epoch}:}%{version}-%{release}
-Obsoletes:	trinity-kdemultimedia-extras < %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:	trinity-kdemultimedia-extras = %{?epoch:%{epoch}:}%{version}-%{release}
-Obsoletes:	trinity-kdemultimedia-extras-libs < %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:	trinity-kdemultimedia-extras-libs = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:	trinity-kdemultimedia < %{EVRD}
+Provides:	trinity-kdemultimedia = %{EVRD}
+Obsoletes:	trinity-kdemultimedia-libs < %{EVRD}
+Provides:	trinity-kdemultimedia-libs = %{EVRD}
+Obsoletes:	trinity-kdemultimedia-extras < %{EVRD}
+Provides:	trinity-kdemultimedia-extras = %{EVRD}
+Obsoletes:	trinity-kdemultimedia-extras-libs < %{EVRD}
+Provides:	trinity-kdemultimedia-extras-libs = %{EVRD}
 
-BuildRequires:	trinity-arts-devel >= %{tde_epoch}:1.5.10
-BuildRequires:	trinity-tdelibs-devel >= %{tde_version}
-BuildRequires:	trinity-tdebase-devel >= %{tde_version}
+BuildRequires:	trinity-arts-devel >= 1.5.10
+BuildRequires:	trinity-tdelibs-devel >= %{version}
+BuildRequires:	trinity-tdebase-devel >= %{version}
 
-BuildRequires:	trinity-tde-cmake >= %{tde_version}
+BuildRequires:	trinity-tde-cmake >= %{version}
 
 %{!?with_clang:BuildRequires:	gcc-c++}
 
@@ -159,24 +153,24 @@ BuildRequires:  pkgconfig(libattr)
 BuildRequires:  pkgconfig(xrender)
 
 
-Requires: trinity-artsbuilder = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires: trinity-juk = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires: trinity-kaboodle = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires: trinity-kaudiocreator = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires: %{name}-kfile-plugins = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires: %{name}-kappfinder-data = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires: %{name}-tdeio-plugins = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires: trinity-tdemid = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires: trinity-kmix = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires: trinity-krec = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires: trinity-kscd = %{?epoch:%{epoch}:}%{version}-%{release}
-%{?with_akode:Requires: trinity-libarts-akode = %{?epoch:%{epoch}:}%{version}-%{release}}
-%{?with_audiofile:Requires: trinity-libarts-audiofile = %{?epoch:%{epoch}:}%{version}-%{release}}
-%{?with_mpeg:Requires: trinity-libarts-mpeglib = %{?epoch:%{epoch}:}%{version}-%{release}}
-%{?with_xine:Requires: trinity-libarts-xine = %{?epoch:%{epoch}:}%{version}-%{release}}
-Requires: trinity-libkcddb = %{?epoch:%{epoch}:}%{version}-%{release}
-%{?with_mpeg:Requires: trinity-mpeglib = %{?epoch:%{epoch}:}%{version}-%{release}}
-Requires: trinity-noatun = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires: trinity-artsbuilder = %{EVRD}
+Requires: trinity-juk = %{EVRD}
+Requires: trinity-kaboodle = %{EVRD}
+Requires: trinity-kaudiocreator = %{EVRD}
+Requires: %{name}-kfile-plugins = %{EVRD}
+Requires: %{name}-kappfinder-data = %{EVRD}
+Requires: %{name}-tdeio-plugins = %{EVRD}
+Requires: trinity-tdemid = %{EVRD}
+Requires: trinity-kmix = %{EVRD}
+Requires: trinity-krec = %{EVRD}
+Requires: trinity-kscd = %{EVRD}
+%{?with_akode:Requires: trinity-libarts-akode = %{EVRD}}
+%{?with_audiofile:Requires: trinity-libarts-audiofile = %{EVRD}}
+%{?with_mpeg:Requires: trinity-libarts-mpeglib = %{EVRD}}
+%{?with_xine:Requires: trinity-libarts-xine = %{EVRD}}
+Requires: trinity-libkcddb = %{EVRD}
+%{?with_mpeg:Requires: trinity-mpeglib = %{EVRD}}
+Requires: trinity-noatun = %{EVRD}
 
 
 %description
@@ -201,7 +195,7 @@ TDE, including:
 %package -n trinity-artsbuilder
 Summary:	Synthesizer designer for aRts
 Group:		Productivity/Multimedia/Sound/Mixers
-Requires:	trinity-kicker >= %{tde_version}
+Requires:	trinity-kicker >= %{version}
 
 %description -n trinity-artsbuilder
 This is the analog Realtime synthesizer's graphical design tool.
@@ -403,7 +397,7 @@ Summary:	Light, embedded media player for Trinity
 Group:		System/GUI/Other
 
 %if %{with xine}
-Requires:	trinity-libarts-xine = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:	trinity-libarts-xine = %{EVRD}
 %endif
 
 %description -n trinity-kaboodle
@@ -429,7 +423,7 @@ for TDE. It uses the aRts framework for playing media files.
 Summary:	CD ripper and audio encoder frontend for Trinity
 Group:		Productivity/Multimedia/CD/Grabbers
 
-Requires:	%{name}-tdeio-plugins = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:	%{name}-tdeio-plugins = %{EVRD}
 Requires:	vorbis-tools
 Requires:	flac
 
@@ -508,8 +502,8 @@ au/avi/m3u/mp3/ogg/wav file metainformation plugins for Trinity.
 Summary:	Multimedia data for kappfinder
 Group:		Productivity/Multimedia/Sound/Utilities
 
-Requires: 	trinity-kappfinder >= %{tde_version}
-Requires:	trinity-tdebase-runtime-data-common >= %{tde_version}
+Requires: 	trinity-kappfinder >= %{version}
+Requires:	trinity-tdebase-runtime-data-common >= %{version}
 
 %description kappfinder-data
 This package provides data on multimedia applications for kappfinder.
@@ -525,10 +519,10 @@ This package provides data on multimedia applications for kappfinder.
 %package tdeio-plugins
 Summary:	Enables the browsing of audio CDs under Konqueror
 Group:		Productivity/Multimedia/Sound/Utilities
-Requires:	trinity-tdebase-tdeio-plugins >= %{tde_version}
+Requires:	trinity-tdebase-tdeio-plugins >= %{version}
 
-Obsoletes:	trinity-tdemultimedia-kio-plugins < %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:	trinity-tdemultimedia-kio-plugins = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:	trinity-tdemultimedia-kio-plugins < %{EVRD}
+Provides:	trinity-tdemultimedia-kio-plugins = %{EVRD}
 
 %description tdeio-plugins
 This package allow audio CDs to be browsed like a file system using
@@ -564,8 +558,8 @@ Konqueror and the audiocd:/ URL.
 Summary:	MIDI/karaoke player for Trinity
 Group:		Productivity/Multimedia/Sound/Midi
 
-Obsoletes:	trinity-kmid < %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:	trinity-kmid = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:	trinity-kmid < %{EVRD}
+Provides:	trinity-kmid = %{EVRD}
 
 %description -n trinity-tdemid
 This package provides a MIDI and karaoke player for TDE.
@@ -588,7 +582,7 @@ This package provides a MIDI and karaoke player for TDE.
 %package -n trinity-kmix
 Summary:	Sound mixer applet for Trinity
 Group:		Productivity/Multimedia/Sound/Mixers
-Requires:	trinity-kicker >= %{tde_version}
+Requires:	trinity-kicker >= %{version}
 
 %description -n trinity-kmix
 This package includes TDE's dockable sound mixer applet.
@@ -784,7 +778,7 @@ multimedia engine though aRts.
 %package -n trinity-libkcddb
 Summary:	CDDB library for Trinity
 Group:		Productivity/Multimedia/Other
-Requires:	trinity-kcontrol >= %{tde_version}
+Requires:	trinity-kcontrol >= %{version}
 
 %description -n trinity-libkcddb
 The Trinity native CDDB (CD Data Base) library, providing easy access to Audio
@@ -809,7 +803,7 @@ databases, for TDE applications.
 Summary:	MP3 and MPEG-1 audio and video library
 Group:		Productivity/Multimedia/Other
 %if 0%{?with_mpeg}
-Requires:	trinity-libarts-mpeglib = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:	trinity-libarts-mpeglib = %{EVRD}
 %endif
 
 %description -n trinity-mpeglib
@@ -836,7 +830,7 @@ and WAV playback
 %package -n trinity-noatun
 Summary:	Media player for Trinity
 Group:		Productivity/Multimedia/Video/Players
-Requires:	trinity-tdebase-bin >= %{tde_version}
+Requires:	trinity-tdebase-bin >= %{version}
 
 # 20120802: Hack to avoid dependency issue on MGA2 and MDV2011
 Provides:	devel(libnoatunarts)
@@ -920,11 +914,11 @@ formats supported by your installation of aRts (including aRts plugins).
 %package devel
 Summary:	Development files for %{name}, aRts and noatun plugins
 Group:		Development/Libraries/Other
-Requires:	%{name} = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires:	trinity-tdelibs-devel >= %{tde_version}
+Requires:	%{name} = %{EVRD}
+Requires:	trinity-tdelibs-devel >= %{version}
 
-Obsoletes:	trinity-kdemultimedia-devel < %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:	trinity-kdemultimedia-devel = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:	trinity-kdemultimedia-devel < %{EVRD}
+Provides:	trinity-kdemultimedia-devel = %{EVRD}
 
 %description devel
 {summary}.
