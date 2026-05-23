@@ -21,15 +21,15 @@
 %define _disable_rebuild_configure 1
 
 # fixes error: Empty %files file …/debugsourcefiles.list
-%define _debugsource_template %{nil}
+%undefine _debugsource_template
 
 %define tarball_name %{tde_pkg}-trinity
 
 
 Name:		trinity-%{tde_pkg}
 Summary:	Multimedia applications for the Trinity Desktop Environment
-Version:	14.1.5
-Release:	6
+Version:	14.1.6
+Release:	1
 Group:		Productivity/Multimedia/Sound/Utilities
 URL:		http://www.trinitydesktop.org/
 
@@ -69,10 +69,9 @@ Provides:	trinity-kdemultimedia-extras = %{EVRD}
 Obsoletes:	trinity-kdemultimedia-extras-libs < %{EVRD}
 Provides:	trinity-kdemultimedia-extras-libs = %{EVRD}
 
-BuildRequires:	trinity-arts-devel >= 1.5.10
+BuildRequires:	trinity-arts-devel >= %{version}
 BuildRequires:	trinity-tdelibs-devel >= %{version}
 BuildRequires:	trinity-tdebase-devel >= %{version}
-
 BuildRequires:	trinity-tde-cmake >= %{version}
 
 %{!?with_clang:BuildRequires:	gcc-c++}
@@ -84,11 +83,11 @@ BuildRequires:	desktop-file-utils
 %{?with_taglib:BuildRequires: pkgconfig(taglib)}
 
 # AKODE support
-%{?with_akode:BuildRequires: trinity-akode-devel}
+%{?with_akode:BuildRequires: trinity-akode-devel >= %{version}}
 
 # MAD support
 %ifarch %{ix86} %{x86_64}
-%{?with_libmad:BuildRequires: %{_lib}akode_mpeg_decoder}
+%{?with_libmad:BuildRequires: %{_lib}akode_mpeg_decoder >= %{version}}
 %endif
 
 # ZLIB support
